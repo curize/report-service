@@ -69,5 +69,21 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(self.call("/nope")[0], 404)
 
 
+class PortTests(unittest.TestCase):
+    def test_default_port_is_8080(self):
+        self.assertEqual(server.get_port({}), 8080)
+
+    def test_port_from_environment(self):
+        self.assertEqual(server.get_port({"PORT": "8207"}), 8207)
+
+    def test_non_numeric_port_is_rejected(self):
+        with self.assertRaises(ValueError):
+            server.get_port({"PORT": "abc"})
+
+    def test_out_of_range_port_is_rejected(self):
+        with self.assertRaises(ValueError):
+            server.get_port({"PORT": "70000"})
+
+
 if __name__ == "__main__":
     unittest.main()

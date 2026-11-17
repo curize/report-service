@@ -7,9 +7,22 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import report
 
-VERSION = "1.0.0"
-PORT = 8080
+VERSION = "1.0.1"
+DEFAULT_PORT = 8080
 _lock = threading.Lock()
+
+
+def get_port(env=None):
+    """Порт берётся из переменной окружения PORT (по умолчанию 8080)."""
+    env = os.environ if env is None else env
+    raw = env.get("PORT", str(DEFAULT_PORT))
+    try:
+        port = int(raw)
+    except ValueError:
+        raise ValueError(f"PORT must be an integer, got {raw!r}")
+    if not 1 <= port <= 65535:
+        raise ValueError(f"PORT out of range: {port}")
+    return port
 
 
 def data_path(data_dir):
@@ -90,8 +103,13 @@ def make_server(port, data_dir, quiet=False):
 
 def main():
     data_dir = os.environ.get("DATA_DIR", "data")
-    server = make_server(PORT, data_dir)
-    print(f"report-service {VERSION} listening on port {PORT}, data dir: {data_dir}", flush=True)
+    try:
+        port = get_port()
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    server = make_server(port, data_dir)
+    print(f"report-service {VERSION} listening on port {port}, data dir: {data_dir}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
