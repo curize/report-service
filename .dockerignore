@@ -1,0 +1,10 @@
+.git
+.github
+.env
+tests
+scripts
+docs
+backup
+restored
+__pycache__
+*.pyc

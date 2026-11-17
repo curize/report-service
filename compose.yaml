@@ -1,0 +1,12 @@
+name: report-service
+services:
+  app:
+    image: report-service:1.0.0
+    build: .
+    ports:
+      - "8090:8080"
+    volumes:
+      - report-data:/data
+    restart: unless-stopped
+volumes:
+  report-data:
